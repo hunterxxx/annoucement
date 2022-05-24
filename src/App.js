@@ -20,8 +20,7 @@ const FILTER_MAP = {
 
 const FILTER_NAMES = Object.keys(FILTER_MAP);
 
-export default function App(props) {
-  //const [tasks, setTasks] = useState(props.tasks);
+export default function App() {
   const [filter, setFilter] = useState('All');
   const [tasks, setTasks] = useState([])
 
@@ -33,28 +32,21 @@ export default function App(props) {
       .catch(err => {
         console.log(err)
       })
-  }, [])
+  }, [tasks])
 
   const addTask = async (name) => {
-    const newTask = { id: nanoid(), name: name, timestamp: moment() };
+    let newTask = { id: nanoid(), name: name, timestamp: moment() };
 
-    const res = await fetch('http://localhost:3001/announce/add', {
+    await fetch('http://localhost:3001/add', {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
       },
       body: JSON.stringify(newTask),
     })
-    const data = await res.json();
-    //setTodos([...todos, data.todo])
+
     setTasks([...tasks, newTask]);
   }
-
-  // let addTask = name => {
-  //   const newTask = { id: nanoid(), name: name, timestamp: moment() };
-  //   setTasks([...tasks, newTask]);
-  // }
-
 
   const filterList = FILTER_NAMES.map(name => (
     <FilterButton
