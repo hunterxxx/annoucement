@@ -18,14 +18,13 @@ export default function Form(props) {
             <b>Text:</b>
             <input
                 type="text"
-                id="new-todo-input"
-                className="input input__lg"
+                id="new-input"
                 name="text"
                 autoComplete="off"
                 value={name}
                 onChange={handleChange}
             />
-            <button type="submit" className="btn btn__primary btn__lg">
+            <button type="submit">
                 Create
             </button>
         </form>

@@ -7,24 +7,24 @@ import { nanoid } from "nanoid";
 import moment from 'moment'
 import axios from 'axios'
 
-const today = moment();
-const lastSevenDays = moment().subtract(7, 'days');
-const lastThirtyDays = moment().subtract(30, 'days');
+let today = moment();
+let lastSevenDays = moment().subtract(7, 'days');
+let lastThirtyDays = moment().subtract(30, 'days');
 
-const FILTER_MAP = {
+let FILTER_MAP = {
   "All": () => true,
-  "Today": task => task.timestamp.isBetween(today, today, 'day', '[]'),
-  "Last 7 Days": task => task.timestamp.isBetween(lastSevenDays, today, 'day', '[]'),
-  "Last 30 Days": task => task.timestamp.isBetween(lastThirtyDays, today, 'day', '[]'),
+  "Today": task => moment(task.timestamp).isBetween(today, today, 'day', '[]'),
+  "Last 7 Days": task => moment(task.timestamp).isBetween(lastSevenDays, today, 'day', '[]'),
+  "Last 30 Days": task => moment(task.timestamp).isBetween(lastThirtyDays, today, 'day', '[]'),
 };
 
-const FILTER_NAMES = Object.keys(FILTER_MAP);
+let FILTER_NAMES = Object.keys(FILTER_MAP);
 
 export default function App() {
   const [filter, setFilter] = useState('All');
   const [tasks, setTasks] = useState([])
 
-  useEffect(() => {
+  const fetchAll = async () => {
     axios.get('http://localhost:3001/all')
       .then(res => {
         setTasks(res.data)
@@ -32,10 +32,35 @@ export default function App() {
       .catch(err => {
         console.log(err)
       })
+    // const res = await fetch(`http://localhost:3001/all`)
+
+    // console.log(res)
+    // const res = await fetch("http://localhost:3001/all");
+    // res.json().then(res => {
+    //   console.log(res.data)
+    //   setTasks(res.data)
+    // })
+  }
+
+
+  useEffect(() => {
+    fetchAll()
+    console.log(132)
   }, [tasks])
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const res = await fetch(`http://localhost:3001/all`);
+  //     const data = await res.data;
+  //     setTasks(data);
+  //   }
+  //   fetchData().catch(console.error);;
+  // }, [tasks])
+
+
+
   const addTask = async (name) => {
-    let newTask = { id: nanoid(), name: name, timestamp: moment() };
+    let newTask = { id: nanoid(), name: name, timestamp: today };
 
     await fetch('http://localhost:3001/add', {
       method: 'POST',
@@ -44,18 +69,8 @@ export default function App() {
       },
       body: JSON.stringify(newTask),
     })
-
     setTasks([...tasks, newTask]);
   }
-
-  const filterList = FILTER_NAMES.map(name => (
-    <FilterButton
-      key={name}
-      name={name}
-      isPressed={name === filter}
-      setFilter={setFilter}
-    />
-  ));
 
   const deleteTask = async (id) => {
     const res = await fetch(`http://localhost:3001/delete/${id}`, {
@@ -67,6 +82,14 @@ export default function App() {
       : alert('There was an error while deleting');
   }
 
+  const filterList = FILTER_NAMES.map(name => (
+    <FilterButton
+      key={name}
+      name={name}
+      isPressed={name === filter}
+      setFilter={setFilter}
+    />
+  ));
 
   const taskList = tasks
     .filter(FILTER_MAP[filter])
@@ -80,17 +103,13 @@ export default function App() {
       />
     )
 
-
   return (
-    <div className="todoapp stack-large">
+    <div>
       <Form addTask={addTask} />
-      <div className="filters btn-group stack-exception">
+      <div>
         {filterList}
       </div>
-      <ul
-        className="todo-list stack-large stack-exception"
-        aria-labelledby="list-heading"
-      >
+      <ul>
         {taskList}
       </ul>
     </div>
