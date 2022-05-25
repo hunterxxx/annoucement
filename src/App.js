@@ -32,32 +32,12 @@ export default function App() {
       .catch(err => {
         console.log(err)
       })
-    // const res = await fetch(`http://localhost:3001/all`)
-
-    // console.log(res)
-    // const res = await fetch("http://localhost:3001/all");
-    // res.json().then(res => {
-    //   console.log(res.data)
-    //   setTasks(res.data)
-    // })
   }
 
 
   useEffect(() => {
     fetchAll()
-    console.log(132)
   }, [tasks])
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const res = await fetch(`http://localhost:3001/all`);
-  //     const data = await res.data;
-  //     setTasks(data);
-  //   }
-  //   fetchData().catch(console.error);;
-  // }, [tasks])
-
-
 
   const addTask = async (name) => {
     let newTask = { id: nanoid(), name: name, timestamp: today };
@@ -93,6 +73,7 @@ export default function App() {
 
   const taskList = tasks
     .filter(FILTER_MAP[filter])
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .map(task =>
       <Announcement
         id={task.id}
